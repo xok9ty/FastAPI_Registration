@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import Column, Integer, String
 from passlib.context import CryptContext
+import datetime
+import jwt
 
 DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 
@@ -13,6 +15,15 @@ engine = create_async_engine(DATABASE_URL, echo=True)
 AsyncSessionLocal = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
 Base = declarative_base()
+
+SECRET_KEY = "your_secret_key"
+ALGORITHM = "HS256"
+
+def create_access_token(data: dict, expires_delta: datetime.timedelta):
+    to_encode = data.copy()
+    expire = datetime.datetime.utcnow() + expires_delta
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 app = FastAPI()
 
