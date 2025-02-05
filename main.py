@@ -1,6 +1,6 @@
-from fastapi import FastAPI, Request, Depends, HTTPException
+from fastapi import FastAPI, Request, Depends, HTTPException, status
 from fastapi.templating import Jinja2Templates
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
@@ -85,6 +85,17 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
     await db.commit()
     
     return {"message": "Користувача створено успішно!"}
+
+@app.post("/login/")
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).where(User.username == form_data.username))
+    user = result.scalars().first()
+    
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Невірний логін або пароль")
+    
+    access_token = create_access_token(data={"sub": user.username}, expires_delta=datetime.timedelta(hours=1))
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 #uvicorn main:app --reload
