@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вхід та реєстрація</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Авторизація</h2>
+    
+    <div class="container">
+        <h3>Реєстрація</h3>
+        <input type="text" id="reg-username" placeholder="Логін">
+        <input type="password" id="reg-password" placeholder="Пароль">
+        <button onclick="register()">Зареєструватися</button>
+
+        <h3>Вхід</h3>
+        <input type="text" id="login-username" placeholder="Логін">
+        <input type="password" id="login-password" placeholder="Пароль">
+        <button onclick="login()">Увійти</button>
+
+        <h3>Захищена сторінка</h3>
+        <button onclick="getProtectedContent()">Отримати дані</button>
+        
+        <div id="protected-content">
+            <h3>Захищений контент:</h3>
+            <p id="protected-data"></p>
+        </div>
+    </div>
+
+    <script>
+        let token = "";
+
+        async function register() {
+            const username = document.getElementById("reg-username").value;
+            const password = document.getElementById("reg-password").value;
+
+            const response = await fetch("/register/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+            alert(data.message || "Помилка реєстрації");
+        }
+
+        async function login() {
+            const username = document.getElementById("login-username").value;
+            const password = document.getElementById("login-password").value;
+
+            const formData = new URLSearchParams();
+            formData.append("username", username);
+            formData.append("password", password);
+
+            const response = await fetch("/login/", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.access_token) {
+                token = data.access_token;
+                alert("Вхід успішний!");
+            } else {
+                alert("Помилка входу!");
+            }
+        }
+
+        async function getProtectedContent() {
+            const response = await fetch("/protected/", {
+                method: "GET",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById("protected-data").textContent = data.message;
+                document.getElementById("protected-content").style.display = "block";
+            } else {
+                alert("Помилка доступу!");
+            }
+        }
+    </script>
+</body>
+</html>

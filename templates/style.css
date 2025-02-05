@@ -1,0 +1,36 @@
+body { 
+    font-family: Arial, sans-serif; 
+    text-align: center; 
+}
+
+.container { 
+    width: 300px; 
+    margin: auto; 
+}
+
+input { 
+    width: 100%; 
+    padding: 10px; 
+    margin: 5px 0; 
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button { 
+    width: 100%; 
+    padding: 10px; 
+    background: blue; 
+    color: white; 
+    border: none; 
+    cursor: pointer; 
+    border-radius: 5px;
+}
+
+button:hover {
+    background: darkblue;
+}
+
+#protected-content { 
+    display: none; 
+    margin-top: 20px; 
+}
