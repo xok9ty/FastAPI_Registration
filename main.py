@@ -1,11 +1,12 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, select
 from passlib.context import CryptContext
+from pydantic import BaseModel
 import datetime
 import jwt
 
@@ -64,3 +65,26 @@ async def get_db():
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+class UserCreate(BaseModel):
+    username: str
+    password: str
+
+@app.post("/register/")
+async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).where(User.username == user.username))
+    existing_user = result.scalars().first()
+
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Користувач вже існує")
+
+    hashed_password = get_password_hash(user.password)
+    new_user = User(username=user.username, hashed_password=hashed_password)
+    
+    db.add(new_user)
+    await db.commit()
+    
+    return {"message": "Користувача створено успішно!"}
+
+
+#uvicorn main:app --reload
