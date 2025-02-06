@@ -98,6 +98,19 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
     access_token = create_access_token(data={"sub": user.username}, expires_delta=datetime.timedelta(hours=1))
     return {"access_token": access_token, "token_type": "bearer"}
 
+@app.get("/protected/")
+async def protected_route(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Недійсний токен")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Токен закінчився")
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Недійсний токен")
+
+    return {"message": f"Ласкаво просимо, {username}!"}
 
 @app.on_event("startup")
 async def on_startup():
