@@ -9,6 +9,7 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 import datetime
 import jwt
+import asyncio
 
 DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 
@@ -97,5 +98,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
     access_token = create_access_token(data={"sub": user.username}, expires_delta=datetime.timedelta(hours=1))
     return {"access_token": access_token, "token_type": "bearer"}
 
+
+@app.on_event("startup")
+async def on_startup():
+    await init_db()
 
 #uvicorn main:app --reload
