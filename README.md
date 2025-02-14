@@ -9,6 +9,7 @@ FastAPI Registration - is a registration and login module built on FastAPI.
 
 ## How to install?
 1. Install the required libraries (listed above)
+   
    FastAPI
    ```
    pip install fastapi
