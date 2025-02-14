@@ -40,9 +40,10 @@ FastAPI Registration - is a registration and login module built on FastAPI.
    ```
 4. Install the dependencies
 
-  ```
-  pip install -r requirements.txt
-  ```
+   ```
+   pip install -r requirements.txt
+   ```
+
 
 ## How to run the code?
 Start the server with Uvicorn:
