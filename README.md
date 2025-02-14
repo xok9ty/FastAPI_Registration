@@ -1,7 +1,7 @@
 # FastAPI_Registration
- FastAPI_Registration — це модуль для реєстрації та входу на сайт, створений на основі FastAPI.
+FastAPI Registration - is a registration and login module built on FastAPI.
 
-##Вимоги
+# Requirements
 
 * Python
 * FastAPI
